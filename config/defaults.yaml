@@ -1,0 +1,4 @@
+# config/defaults.yaml
+
+model:
+  base_encoder: microsoft/mdeberta-v3-base

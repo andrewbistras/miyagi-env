@@ -1,0 +1,31 @@
+# config/train/baseline.yamk
+
+data:
+  raw_path:          ""
+  processed_dir:     ""
+  max_len:           512
+
+model:
+  grl_lambda:        0.016
+
+loss:
+  w_scl:             0.10
+  scl_temperature:   0.10
+
+train:
+  epochs:                3
+  batch_size:            64
+  gradient_accumulation: 2
+  lr_encoder:            3.0e-5
+  lr_head:               1.0e-4
+  ramp_steps:            500
+  output_dir:            "./experiments"
+
+runtime:
+  torch_compile:     false
+  compile_fullgraph: false
+  bf16:              true
+  tf32:              true
+  dataloader_workers: 4
+  pin_memory:        true
+  group_by_length:   false
