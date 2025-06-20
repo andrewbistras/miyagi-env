@@ -1,4 +1,7 @@
 # config/defaults.yaml
 
-model:
-  base_encoder: microsoft/mdeberta-v3-base
+defaults:
+  - data: base
+  - train: baseline
+  - model: mdeberta
+  - _self_

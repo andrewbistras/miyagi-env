@@ -1,9 +1,9 @@
 # /train.py
 
 import os
-import yaml
+import hydra
 import math
-import argparse
+from omegaconf import DictConfig, OmegaConf
 import torch
 from transformers import (
     AutoTokenizer, 
@@ -12,47 +12,39 @@ from transformers import (
     get_linear_schedule_with_warmup
 )
 from torch.optim import AdamW
-
 from miyagi_machines import get_processed_dataset, Model, MultiObjectiveTrainer, compute_metrics
 
 # set to avoid deadlocks
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-def main():
-    # --- 1. Load Configuration from YAML ---
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--yaml_path", type=str, required=True)
-    args = parser.parse_args()
-
-    with open(args.config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    data_cfg = config['data']
-    model_cfg = config['model']
-    train_cfg = config['train']
-
+@hydra.main(version_base=None, config_path="../config", config_name="defaults")
+def main(cfg: DictConfig) -> None:
     print("Configuration loaded successfully.")
+    # print(OmegaConf.to_yaml(cfg, resolve=True)) # Optional: for debugging
 
     # --- 2. Fetch Processed Dataset ---
     ds_dict, metadata = get_processed_dataset(
-        raw_data_path=data_cfg['raw_path'],
-        processed_dataset_path=data_cfg['processed_dir'],
-        tokenizer_name=model_cfg['base_encoder'],
-        max_len=data_cfg['max_len'],
+        raw_data_path=cfg.data.raw_path,
+        processed_dataset_path=cfg.data.processed_dir,
+        tokenizer_name=cfg.model.base_encoder,
+        max_len=cfg.data.max_len,
     )
     
     print(f"Dataset loaded: {metadata['total_size']:,} total examples")
     print(f"  Splits: {metadata['splits']}")
     print(f"  Label distribution: {metadata['label_distribution']}")
-
     
     # --- 3. Instantiate Model ---
     model = Model(
-        base_encoder=model_cfg['base_encoder'],
+        base_encoder=cfg.model.base_encoder,
         n_models=metadata['n_models'],
         n_prompts=metadata['n_prompts'],
-        grl_lambda=model_cfg['grl_lambda'],
+        grl_lambda=cfg.model.grl_lambda,
     )
+    
+    print(f"Model instantiated with {metadata['n_models']} models and {metadata['n_prompts']} prompts.")
+    print(f"Model architecture:\n{model}")
+
 
     # --- 4. Compile Model (Optional but Recommended) ---
     if torch.cuda.is_available():
@@ -61,19 +53,19 @@ def main():
         torch.backends.cuda.matmul.allow_tf32 = True
 
     # --- 5. Set Up Training Arguments ---
-    tokenizer = AutoTokenizer.from_pretrained(model_cfg['base_encoder'])
+    tokenizer = AutoTokenizer.from_pretrained(cfg.model.base_encoder)
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    effective_batch_size = train_cfg['batch_size'] * train_cfg['gradient_accumulation']
+    effective_batch_size = cfg.train.batch_size * cfg.train.gradient_accumulation
     steps_per_epoch = math.ceil(len(ds_dict["train"]) / effective_batch_size)
     eval_and_save_steps = math.ceil(steps_per_epoch / 2)
     
     training_args = TrainingArguments(
-        output_dir=train_cfg['output_dir'],
-        num_train_epochs=train_cfg['epochs'],
-        per_device_train_batch_size=train_cfg['batch_size'],
-        per_device_eval_batch_size=train_cfg['batch_size'],
-        gradient_accumulation_steps=train_cfg['gradient_accumulation'],
+        output_dir=cfg.train.output_dir,
+        num_train_epochs=cfg.train.epochs,
+        per_device_train_batch_size=cfg.train.batch_size,
+        per_device_eval_batch_size=cfg.train.batch_size,
+        gradient_accumulation_steps=cfg.train.gradient_accumulation,
         eval_strategy="steps",
         eval_steps=eval_and_save_steps,  
         save_strategy="steps",
@@ -98,14 +90,14 @@ def main():
     
     optimizer = AdamW(
         [
-            {"params": enc_params, "lr": train_cfg['lr_encoder']},
-            {"params": head_params, "lr": train_cfg['lr_head']},
+            {"params": enc_params, "lr": cfg.train.lr_encoder},
+            {"params": head_params, "lr": cfg.train.lr_head},
         ],
         weight_decay=0.01,
         fused=torch.cuda.is_available(),
     )
     
-    num_training_steps = steps_per_epoch * train_cfg['epochs']
+    num_training_steps = steps_per_epoch * cfg.train.epochs
     scheduler = get_linear_schedule_with_warmup(
         optimizer, 
         num_warmup_steps=500,
@@ -114,7 +106,7 @@ def main():
     
     # --- 7. Instantiate and Run Trainer ---
     trainer = MultiObjectiveTrainer(
-        training_config=train_cfg,
+        training_config=cfg.train,
         model=model,
         args=training_args,
         train_dataset=ds_dict["train"],

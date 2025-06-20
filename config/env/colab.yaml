@@ -1,8 +1,0 @@
-# colab-env/colab.yaml
-
-env:
-  hf_cache: "/content/drive/MyDrive/hf_cache"
-
-data:
-  raw_path: "/content/drive/MyDrive/data/ai_detector/raw/modern_train.jsonl"
-  processed_dir: "/content/drive/MyDrive/data/ai_detector/processed/"

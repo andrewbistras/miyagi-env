@@ -1,20 +1,15 @@
 # config/train/colab_a100.yaml
 
-defaults:
-  - baseline
-  - _self_
+batch_size:            128
+gradient_accumulation: 1
+epochs:                5
+ramp_steps:            1000
 
-train:
-  batch_size:            128
-  gradient_accumulation: 1
-  epochs:                5
-  ramp_steps:            1000
-
-runtime:
-  torch_compile:         true
-  compile_fullgraph:     true
-  bf16:                  true
-  tf32:                  true
-  dataloader_workers:    6
-  pin_memory:            true
-  group_by_length:       false
+# runtime:
+#   torch_compile:         true
+#   compile_fullgraph:     true
+#   bf16:                  true
+#   tf32:                  true
+#   dataloader_workers:    6
+#   pin_memory:            true
+#   group_by_length:       false

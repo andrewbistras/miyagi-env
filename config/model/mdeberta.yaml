@@ -1,0 +1,4 @@
+# config/model/mdeberta.yaml
+
+base_encoder: microsoft/mdeberta-v3-base
+grl_lambda: 0.016
