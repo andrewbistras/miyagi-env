@@ -35,22 +35,23 @@ def main():
 
     # --- 2. Fetch Processed Dataset ---
     ds_dict, metadata = get_processed_dataset(
-        raw_data_path=data_cfg['raw_path'], # Corrected key
+        raw_data_path=data_cfg['raw_path'],
         processed_dataset_path=data_cfg['processed_dir'],
         tokenizer_name=model_cfg['base_encoder'],
         max_len=data_cfg['max_len'],
     )
     
-    n_models = metadata['n_models']
-    n_prompts = metadata['n_prompts']
-    print(f"Dataset loaded. Using n_models={n_models}, n_prompts={n_prompts}")
+    print(f"Dataset loaded: {metadata['total_size']:,} total examples")
+    print(f"  Splits: {metadata['splits']}")
+    print(f"  Label distribution: {metadata['label_distribution']}")
+
     
     # --- 3. Instantiate Model ---
     model = Model(
         base_encoder=model_cfg['base_encoder'],
-        n_models=n_models,
-        n_prompts=n_prompts,
-        grl_lambda=model_cfg.get('grl_lambda', 1.0) # Use .get for safety
+        n_models=metadata['n_models'],
+        n_prompts=metadata['n_prompts'],
+        grl_lambda=model_cfg['grl_lambda'],
     )
 
     # --- 4. Compile Model (Optional but Recommended) ---
