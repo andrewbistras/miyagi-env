@@ -1,0 +1,9 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "miyagi_machines"
+version = "0.4.0"
+packages = ["miyagi_machines"]
+package_dir = {"" = "src"}
