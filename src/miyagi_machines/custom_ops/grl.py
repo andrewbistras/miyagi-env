@@ -47,4 +47,4 @@ class GradientReversal(nn.Module):
         self.alpha = float(alpha)
 
     def forward(self, x: Tensor) -> Tensor:
-        return torch.ops.myagi_machines.grl(x, self.alpha)
+        return torch.ops.miyagi_machines.grl(x, self.alpha)

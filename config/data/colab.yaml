@@ -1,0 +1,4 @@
+# config/data/colab.yaml
+
+raw_path:       "/content/drive/MyDrive/data/miyagi_machines/raw/modern_train.jsonl"
+processed_dir:  "/content/drive/MyDrive/data/miyagi_machines/processed/"

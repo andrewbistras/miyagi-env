@@ -1,0 +1,5 @@
+# config/data/base.yaml
+
+raw_path: ""
+processed_dir: ""
+max_len: 512

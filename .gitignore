@@ -1,6 +1,6 @@
 misc
 
-data/
+data/*
 wandb/
 hf_cache/
 experiments/

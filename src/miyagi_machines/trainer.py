@@ -3,7 +3,7 @@
 import torch
 import torch.nn.functional as nn
 from transformers import Trainer
-from miyagi_machines import SupConLoss, FocalLoss
+from miyagi_machines import SupConLoss
 
 class MultiObjectiveTrainer(Trainer):
     """
