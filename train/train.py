@@ -22,7 +22,7 @@ def main(cfg: DictConfig) -> None:
     print("Configuration loaded successfully.")
     # print(OmegaConf.to_yaml(cfg, resolve=True)) # Optional: for debugging
 
-    # --- 2. Fetch Processed Dataset ---
+    # --- 1. Fetch Processed Dataset ---
     ds_dict, metadata = get_processed_dataset(
         raw_data_path=cfg.data.raw_path,
         processed_dataset_path=cfg.data.processed_dir,
@@ -33,6 +33,25 @@ def main(cfg: DictConfig) -> None:
     print(f"Dataset loaded: {metadata['total_size']:,} total examples")
     print(f"  Splits: {metadata['splits']}")
     print(f"  Label distribution: {metadata['label_distribution']}")
+
+    # --- 1. Calculate XE loss weights ---
+    if 'label_distribution' in metadata:
+        label_counts = torch.tensor(metadata['label_distribution'], dtype=torch.float)
+        label_weights = label_counts.sum() / (len(label_counts) * label_counts)
+        cfg.train.class_weights = label_weights.tolist()
+
+    # For the adversarial model head
+    if 'model_label_distribution' in metadata:
+        model_counts = torch.tensor(metadata['model_label_distribution'], dtype=torch.float)
+        model_weights = model_counts.sum() / (len(model_counts) * model_counts)
+        cfg.train.model_weights = model_weights.tolist()
+    
+    # For the adversarial prompt head
+    if 'prompt_label_distribution' in metadata:
+        prompt_counts = torch.tensor(metadata['prompt_label_distribution'], dtype=torch.float)
+        prompt_weights = prompt_counts.sum() / (len(prompt_counts) * prompt_counts)
+        cfg.train.prompt_weights = prompt_weights.tolist()
+
     
     # --- 3. Instantiate Model ---
     model = Model(

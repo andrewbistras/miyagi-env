@@ -1,7 +1,7 @@
 # /src/trainer.py
 
 import torch
-import torch.nn.functional as F
+import torch.nn.functional as nn
 from transformers import Trainer
 from miyagi_machines import SupConLoss, FocalLoss
 
@@ -15,7 +15,14 @@ class MultiObjectiveTrainer(Trainer):
         self.config = training_config
         # Instantiate loss functions with parameters from the config
         self.supcon = SupConLoss(temperature=self.config['scl_temperature'])
-        self.focal_loss = FocalLoss(alpha=self.config['focal_alpha'], gamma=self.config['focal_gamma'])
+
+        cls_weights = torch.tensor(self.config.get('class_weights'), device=self.args.device) if self.config.get('class_weights') else None
+        self.cls_loss = nn.CrossEntropyLoss(weight=cls_weights)
+        model_weights = torch.tensor(self.config.get('model_weights'), device=self.args.device) if self.config.get('model_weights') else None
+        self.model_loss = nn.CrossEntropyLoss(weight=model_weights, ignore_index=-100)
+        prompt_weights = torch.tensor(self.config.get('prompt_weights'), device=self.args.device) if self.config.get('prompt_weights') else None
+        self.prompt_loss = nn.CrossEntropyLoss(weight=prompt_weights)
+
         self.ramp_steps = self.config['ramp_steps']
 
     def compute_loss(self, model, inputs, return_outputs=False):
@@ -28,9 +35,9 @@ class MultiObjectiveTrainer(Trainer):
         outputs = model(**inputs)
 
         # Calculate individual loss components
-        loss_cls = self.focal_loss(outputs["logits"], labels_cls)
-        loss_model = F.cross_entropy(outputs["logits_model"], labels_model, ignore_index=-100)
-        loss_prompt = F.cross_entropy(outputs["logits_prompt"], labels_prompt)
+        loss_cls = self.cls_loss(outputs["logits"], labels_cls)
+        loss_model = self.model_loss(outputs["logits_model"], labels_model)
+        loss_prompt = self.prompt_loss(outputs["logits_prompt"], labels_prompt)
         loss_scl = self.supcon(outputs["z"], labels_cls)
 
         # Linearly scale the adversarial loss during ramp-up phase
