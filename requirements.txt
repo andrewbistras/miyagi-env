@@ -1,6 +1,10 @@
-PyYAML
+# PyYAML
+# transformers
+# datasets
+# omegaconf
+# hydra-core
+# wandb
+
+torch
 transformers
 datasets
-omegaconf
-hydra-core
-wandb
