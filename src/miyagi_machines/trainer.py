@@ -1,7 +1,7 @@
 # /src/trainer.py
 
 import torch
-import torch.nn.functional as nn
+import torch.nn as nn
 from transformers import Trainer
 from miyagi_machines import SupConLoss
 

@@ -40,7 +40,7 @@ def _grl_onnx(x: torch.Tensor, alpha: float):
     return x
 
 
-class GradientReversal(nn.Module):
+class GradientReversalLayer(nn.Module):
     """nn.Module-friendly wrapper"""
     def __init__(self, alpha: float = 1.0):
         super().__init__()
