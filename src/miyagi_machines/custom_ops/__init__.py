@@ -2,7 +2,7 @@
 
 from .focal_loss import FocalLoss
 from .sup_con_loss import SupConLoss
-from .grl import GradientReversalLayer
+from .gradient_reversal_layer import GradientReversalLayer
 
 __all__ = [
     "FocalLoss",

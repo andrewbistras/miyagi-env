@@ -5,9 +5,8 @@ wandb/
 hf_cache/
 experiments/
 
-__pycache__/
+*.__pycache__
 *.py[cod]
 
-.DS_Store
+*.DS_Store
 .ipynb_checkpoints/
-Train.ipynb

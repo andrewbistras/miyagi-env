@@ -1,9 +1,9 @@
-# /src/trainer.py
+# /src/miyagi_machines/trainer.py
 
 import torch
 import torch.nn as nn
 from transformers import Trainer
-from miyagi_machines import SupConLoss
+from miyagi_machines.custom_ops import SupConLoss
 
 class MultiObjectiveTrainer(Trainer):
     """

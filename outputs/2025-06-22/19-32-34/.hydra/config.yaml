@@ -1,0 +1,12 @@
+data:
+  raw_path: /content/drive/MyDrive/shell/data/miyagi_machines/raw/modern_train.jsonl
+  processed_dir: /content/drive/MyDrive/shell/data/processed/modern_train
+  max_len: 512
+train:
+  batch_size: 128
+  gradient_accumulation: 1
+  epochs: 5
+  ramp_steps: 1000
+model:
+  base_encoder: microsoft/mdeberta-v3-base
+  grl_lambda: 0.016

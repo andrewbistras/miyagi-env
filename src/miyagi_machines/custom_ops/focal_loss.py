@@ -1,4 +1,4 @@
-# src/miyagi_machines/custom_ops/focal.py
+# src/miyagi_machines/custom_ops/focal_loss.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

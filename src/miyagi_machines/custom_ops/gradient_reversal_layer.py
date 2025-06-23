@@ -1,4 +1,4 @@
-# /src/miyagi_machines/custom_ops/grl.py
+# /src/miyagi_machines/custom_ops/gradient_reversal_layer.py
 
 """
 Apparrently the only graphable implementation of GRL in Torch.
@@ -30,14 +30,10 @@ def _grl_bwd(ctx, g_out: Tensor):
 register_autograd("miyagi_machines::grl", _grl_bwd, setup_context=_setup)
 
 
-# cheap fake & ONNX kernels make this traceable & compilable on CUDA
+# cheap fake kernel make this traceable & compilable on CUDA
 @torch.library.register_fake("miyagi_machines::grl")
 def _grl_fake(x: Tensor, alpha: float):
     return torch.ops.aten.alias(x)
-
-@torch.library.impl(_lib, "grl", "ONNX")
-def _grl_onnx(x: torch.Tensor, alpha: float):
-    return x
 
 
 class GradientReversalLayer(nn.Module):

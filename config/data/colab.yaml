@@ -1,4 +1,5 @@
 # config/data/colab.yaml
 
-raw_path:       "/content/drive/MyDrive/data/miyagi_machines/raw/modern_train.jsonl"
-processed_dir:  "/content/drive/MyDrive/data/miyagi_machines/processed/"
+raw_path:       "/content/drive/MyDrive/shell/data/miyagi_machines/raw/modern_train.jsonl"
+processed_dir:  "/content/drive/MyDrive/shell/data/processed/modern_train"
+max_len: 512

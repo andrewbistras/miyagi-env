@@ -1,4 +1,4 @@
-# /train.py
+# cli/train.py
 
 import os
 import hydra
@@ -17,7 +17,7 @@ from miyagi_machines import get_processed_dataset, Model, MultiObjectiveTrainer,
 # set to avoid deadlocks
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-@hydra.main(version_base=None, config_path="config", config_name="defaults")
+@hydra.main(version_base=None, config_path="../config", config_name="defaults")
 def main(cfg: DictConfig) -> None:
     print("Configuration loaded successfully.")
     # print(OmegaConf.to_yaml(cfg, resolve=True)) # Optional: for debugging

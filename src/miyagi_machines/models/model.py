@@ -2,7 +2,7 @@
 
 import torch.nn as nn
 from transformers import AutoModel
-from miyagi_machines import GradientReversalLayer
+from miyagi_machines.custom_ops import GradientReversalLayer
 
 class Model(nn.Module):
     def __init__(self, base_encoder: str, n_models: int, n_prompts: int, grl_lambda: float = 1.0):
